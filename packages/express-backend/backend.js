@@ -42,24 +42,20 @@ const users = {
 app.use(cors());
 app.use(express.json());
 
+const generateRandomId = () => {
+  return Math.random().toString(36).substr(2, 9);
+};
+
 const addUser = (user) => {
+    user.id = generateRandomId(); // Assign a random ID to the user
     users["users_list"].push(user);
     return user;
 };
 
-const deleteUserById = (id) => {
-  const index = users["users_list"].findIndex((user) => user.id === id);
-  if (index !== -1) {
-      users["users_list"].splice(index, 1);
-      return true;
-  }
-  return false;
-};
-
 app.post("/users", (req, res) => {
-    const userToAdd = req.body;
-    addUser(userToAdd);
-    res.send();
+  const userToAdd = req.body;
+  const newUser = addUser(userToAdd); // addUser now returns the added user with the generated ID
+  res.status(201).send(newUser); // Return 201 Created with the new user
 });
 
 const findUserByName = (name) => {
@@ -77,7 +73,14 @@ const findUsersByNameAndJob = (name, job) => {
     );
 };
 
-
+const deleteUserById = (id) => {
+  const index = users["users_list"].findIndex((user) => user.id === id);
+  if (index !== -1) {
+      users["users_list"].splice(index, 1);
+      return true;
+  }
+  return false;
+};
 
 app.get("/users", (req, res) => {
     const name = req.query.name;
@@ -105,7 +108,6 @@ app.get("/users/:id", (req, res) => {
     }
 });
 
-// DELETE route to remove a user by ID
 app.delete("/users/:id", (req, res) => {
   const id = req.params["id"];
   const success = deleteUserById(id);
