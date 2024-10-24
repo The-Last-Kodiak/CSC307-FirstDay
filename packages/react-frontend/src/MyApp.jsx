@@ -3,91 +3,75 @@ import Form from "./Form";
 import React, { useState, useEffect } from "react";
 
 function MyApp() {
-  const [characters, setCharacters] = useState([
-    {
-      name: "Charlie",
-      job: "Janitor"
-    },
-    {
-      name: "Mac",
-      job: "Bouncer"
-    },
-    {
-      name: "Dee",
-      job: "Aspring actress"
-    },
-    {
-      name: "Dennis",
-      job: "Bartender"
-    }
-  ]);
+  const [characters, setCharacters] = useState([]);
 
   function fetchUsers() {
-    const promise = fetch("http://localhost:8000/users");
-    return promise;
+    return fetch("http://localhost:8000/users")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      });
   }
 
   function postUser(person) {
-    const promise = fetch("http://localhost:8000/users", {
+    return fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(person),
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
     });
-
-    return promise;
   }
 
   function deleteUser(id) {
     return fetch(`http://localhost:8000/users/${id}`, {
       method: "DELETE",
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     });
   }
 
   function updateList(person) {
     postUser(person)
-      .then((response) => {
-        if (response.status === 201) {
-          return response.json();
-        } else {
-          console.log("Failed to add user. Status code: ", response.status);
-        }
+      .then(newUser => {
+        setCharacters([...characters, newUser]);
       })
-      .then((newUser) => {
-        if (newUser) {
-          setCharacters([...characters, newUser]);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
+      .catch(error => {
+        console.error("Failed to add user:", error);
       });
   }
 
   function removeOneCharacter(index) {
-    const characterToDelete = characters[index];
-    deleteUser(characterToDelete._id)
-      .then((response) => {
-        if (response.status === 204) {
-          const updated = characters.filter((character, i) => {
-            return i !== index;
-          });
-          setCharacters(updated);
-        } else {
-          console.log("Failed to delete user. Status code: ", response.status);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  const characterToDelete = characters[index];
+  deleteUser(characterToDelete._id)
+    .then(() => {
+      const updated = characters.filter((character, i) => i !== index);
+      setCharacters(updated);
+    })
+    .catch(error => {
+      console.error("Failed to delete user:", error);
+    });
   }
 
   useEffect(() => {
     fetchUsers()
-      .then((res) => res.json())
-      .then((json) => setCharacters(json["users_list"]))
-      .catch((error) => { console.log(error); });
-  }, []);
+      .then(json => {
+        console.log("Fetched users:", json);
+        setCharacters(json);
+      })
+      .catch(error => {
+        console.error("Failed to fetch users:", error);
+      });
+    }, []);
 
   return (
     <div className="container">
