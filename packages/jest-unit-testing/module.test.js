@@ -43,3 +43,18 @@ test('Testing containsNumbers -- empty string', () => {
   const got = mut.containsNumbers('');
   expect(got).toBe(false);
 });
+
+test('Testing containsNumbers -- contains whitespace', () => {
+    const got = mut.containsNumbers('Hello 123');
+    expect(got).toBe(true); 
+});
+
+test('Testing containsNumbers -- contains only whitespace', () => {
+    const got = mut.containsNumbers('    ');
+    expect(got).toBe(false);  // This should fail due to the bug
+});
+
+test('Testing containsNumbers -- contains empty string', () => {
+    const got = mut.containsNumbers('');
+    expect(got).toBe(false); 
+});
