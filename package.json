@@ -18,7 +18,9 @@
   "homepage": "https://github.com/The-Last-Kodiak/csc-307-app#readme",
   "description": "",
   "workspaces": [
-	  "packages/*"
-  ]
-
+    "packages/*"
+  ],
+  "dependencies": {
+    "mongoose": "^8.7.1"
+  }
 }
